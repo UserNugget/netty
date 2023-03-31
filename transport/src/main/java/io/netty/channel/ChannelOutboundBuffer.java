@@ -57,11 +57,11 @@ public final class ChannelOutboundBuffer {
     //  - 16 bytes object header
     //  - 6 reference fields
     //  - 2 long fields
-    //  - 2 int fields
+    //  - 3 int fields
     //  - 1 boolean field
     //  - padding
     static final int CHANNEL_OUTBOUND_BUFFER_ENTRY_OVERHEAD =
-            SystemPropertyUtil.getInt("io.netty.transport.outboundBufferEntrySizeOverhead", 96);
+            SystemPropertyUtil.getInt("io.netty.transport.outboundBufferEntrySizeOverhead", 100);
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(ChannelOutboundBuffer.class);
 
@@ -223,6 +223,22 @@ public final class ChannelOutboundBuffer {
         return entry.msg;
     }
 
+    public int readerIndex() {
+        Entry entry = flushedEntry;
+        if (entry == null) {
+            return -1;
+        }
+
+        return entry.readerIndex;
+    }
+
+    public void readerIndex(int readerIndex) {
+        Entry entry = flushedEntry;
+        if (entry != null) {
+            entry.readerIndex = readerIndex;
+        }
+    }
+
     /**
      * Return the current message flush progress.
      * @return {@code 0} if nothing was flushed before for the current message or there is no current message
@@ -344,14 +360,15 @@ public final class ChannelOutboundBuffer {
      */
     public void removeBytes(long writtenBytes) {
         for (;;) {
-            Object msg = current();
-            if (!(msg instanceof ByteBuf)) {
+            Object msg;
+            Entry currentEntry = flushedEntry;
+            if (currentEntry == null || !((msg = currentEntry.msg) instanceof ByteBuf)) {
                 assert writtenBytes == 0;
                 break;
             }
 
             final ByteBuf buf = (ByteBuf) msg;
-            final int readerIndex = buf.readerIndex();
+            final int readerIndex = currentEntry.readerIndex;
             final int readableBytes = buf.writerIndex() - readerIndex;
 
             if (readableBytes <= writtenBytes) {
@@ -362,7 +379,7 @@ public final class ChannelOutboundBuffer {
                 remove();
             } else { // readableBytes > writtenBytes
                 if (writtenBytes != 0) {
-                    buf.readerIndex(readerIndex + (int) writtenBytes);
+                    currentEntry.readerIndex += (int) writtenBytes;
                     progress(writtenBytes);
                 }
                 break;
@@ -420,7 +437,7 @@ public final class ChannelOutboundBuffer {
         while (isFlushedEntry(entry) && entry.msg instanceof ByteBuf) {
             if (!entry.cancelled) {
                 ByteBuf buf = (ByteBuf) entry.msg;
-                final int readerIndex = buf.readerIndex();
+                final int readerIndex = entry.readerIndex;
                 final int readableBytes = buf.writerIndex() - readerIndex;
 
                 if (readableBytes > 0) {
@@ -480,7 +497,7 @@ public final class ChannelOutboundBuffer {
         if (nioBufs == null) {
             // cached ByteBuffers as they may be expensive to create in terms
             // of Object allocation
-            entry.bufs = nioBufs = buf.nioBuffers();
+            entry.bufs = nioBufs = buf.nioBuffers(entry.readerIndex, buf.writerIndex() - entry.readerIndex);
         }
         for (int i = 0; i < nioBufs.length && nioBufferCount < maxCount; ++i) {
             ByteBuffer nioBuf = nioBufs[i];
@@ -825,6 +842,7 @@ public final class ChannelOutboundBuffer {
         long total;
         int pendingSize;
         int count = -1;
+        int readerIndex = -1;
         boolean cancelled;
 
         private Entry(Handle<Entry> handle) {
@@ -837,6 +855,9 @@ public final class ChannelOutboundBuffer {
             entry.pendingSize = size + CHANNEL_OUTBOUND_BUFFER_ENTRY_OVERHEAD;
             entry.total = total;
             entry.promise = promise;
+            if (msg instanceof ByteBuf) {
+                entry.readerIndex = ((ByteBuf) msg).readerIndex();
+            }
             return entry;
         }
 
@@ -869,6 +890,7 @@ public final class ChannelOutboundBuffer {
             total = 0;
             pendingSize = 0;
             count = -1;
+            readerIndex = -1;
             cancelled = false;
             handle.unguardedRecycle(this);
         }

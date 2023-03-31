@@ -206,10 +206,10 @@ public abstract class AbstractOioByteChannel extends AbstractOioChannel {
             }
             if (msg instanceof ByteBuf) {
                 ByteBuf buf = (ByteBuf) msg;
-                int readableBytes = buf.readableBytes();
+                int readableBytes = buf.writableBytes() - in.readerIndex();
                 while (readableBytes > 0) {
-                    doWriteBytes(buf);
-                    int newReadableBytes = buf.readableBytes();
+                    doWriteBytes(in, buf);
+                    int newReadableBytes = buf.writableBytes() - in.readerIndex();
                     in.progress(readableBytes - newReadableBytes);
                     readableBytes = newReadableBytes;
                 }
@@ -255,10 +255,11 @@ public abstract class AbstractOioByteChannel extends AbstractOioChannel {
     /**
      * Write the data which is hold by the {@link ByteBuf} to the underlying Socket.
      *
+     * @param in
      * @param buf           the {@link ByteBuf} which holds the data to transfer
      * @throws Exception    is thrown if an error occurred
      */
-    protected abstract void doWriteBytes(ByteBuf buf) throws Exception;
+    protected abstract void doWriteBytes(ChannelOutboundBuffer in, ByteBuf buf) throws Exception;
 
     /**
      * Write the data which is hold by the {@link FileRegion} to the underlying Socket.

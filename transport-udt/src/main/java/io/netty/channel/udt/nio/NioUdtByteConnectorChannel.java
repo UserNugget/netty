@@ -21,6 +21,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOutboundBuffer;
 import io.netty.channel.FileRegion;
 import io.netty.channel.RecvByteBufAllocator;
 import io.netty.channel.nio.AbstractNioByteChannel;
@@ -149,9 +150,13 @@ public class NioUdtByteConnectorChannel extends AbstractNioByteChannel implement
     }
 
     @Override
-    protected int doWriteBytes(final ByteBuf byteBuf) throws Exception {
-        final int expectedWrittenBytes = byteBuf.readableBytes();
-        return byteBuf.readBytes(javaChannel(), expectedWrittenBytes);
+    protected int doWriteBytes(ChannelOutboundBuffer in, final ByteBuf byteBuf) throws Exception {
+        final int readerIndex = in.readerIndex();
+        final int expectedWrittenBytes = byteBuf.writerIndex() - readerIndex;
+        final int readedBytes = byteBuf.getBytes(readerIndex, javaChannel(), expectedWrittenBytes);
+        in.readerIndex(readerIndex + readedBytes);
+
+        return readedBytes;
     }
 
     @Override

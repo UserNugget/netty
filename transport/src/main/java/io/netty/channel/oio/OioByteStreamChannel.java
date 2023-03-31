@@ -17,6 +17,7 @@ package io.netty.channel.oio;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelOutboundBuffer;
 import io.netty.channel.FileRegion;
 import io.netty.channel.RecvByteBufAllocator;
 import io.netty.util.internal.ObjectUtil;
@@ -112,12 +113,15 @@ public abstract class OioByteStreamChannel extends AbstractOioByteChannel {
     }
 
     @Override
-    protected void doWriteBytes(ByteBuf buf) throws Exception {
+    protected void doWriteBytes(ChannelOutboundBuffer in, ByteBuf buf) throws Exception {
         OutputStream os = this.os;
         if (os == null) {
             throw new NotYetConnectedException();
         }
-        buf.readBytes(os, buf.readableBytes());
+        int readerIndex = in.readerIndex();
+        int readableBytes = buf.writerIndex() - readerIndex;
+        buf.getBytes(readerIndex, os, readableBytes);
+        in.readerIndex(readerIndex + readableBytes);
     }
 
     @Override

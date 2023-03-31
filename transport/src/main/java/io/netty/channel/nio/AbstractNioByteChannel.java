@@ -215,12 +215,12 @@ public abstract class AbstractNioByteChannel extends AbstractNioChannel {
     private int doWriteInternal(ChannelOutboundBuffer in, Object msg) throws Exception {
         if (msg instanceof ByteBuf) {
             ByteBuf buf = (ByteBuf) msg;
-            if (!buf.isReadable()) {
+            if (buf.writerIndex() <= in.readerIndex()) {
                 in.remove();
                 return 0;
             }
 
-            final int localFlushedAmount = doWriteBytes(buf);
+            final int localFlushedAmount = doWriteBytes(in, buf);
             if (localFlushedAmount > 0) {
                 in.progress(localFlushedAmount);
                 if (!buf.isReadable()) {
@@ -317,10 +317,11 @@ public abstract class AbstractNioByteChannel extends AbstractNioChannel {
 
     /**
      * Write bytes form the given {@link ByteBuf} to the underlying {@link java.nio.channels.Channel}.
+     * @param in
      * @param buf           the {@link ByteBuf} from which the bytes should be written
      * @return amount       the amount of written bytes
      */
-    protected abstract int doWriteBytes(ByteBuf buf) throws Exception;
+    protected abstract int doWriteBytes(ChannelOutboundBuffer in, ByteBuf buf) throws Exception;
 
     protected final void setOpWrite() {
         final SelectionKey key = selectionKey();

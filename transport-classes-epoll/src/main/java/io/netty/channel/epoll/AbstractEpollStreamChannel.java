@@ -250,7 +250,8 @@ public abstract class AbstractEpollStreamChannel extends AbstractEpollChannel im
      * </ul>
      */
     private int writeBytes(ChannelOutboundBuffer in, ByteBuf buf) throws Exception {
-        int readableBytes = buf.readableBytes();
+        int readerIndex =  in.readerIndex();
+        int readableBytes = buf.writerIndex() - readerIndex;
         if (readableBytes == 0) {
             in.remove();
             return 0;
@@ -259,7 +260,7 @@ public abstract class AbstractEpollStreamChannel extends AbstractEpollChannel im
         if (buf.hasMemoryAddress() || buf.nioBufferCount() == 1) {
             return doWriteBytes(in, buf);
         } else {
-            ByteBuffer[] nioBuffers = buf.nioBuffers();
+            ByteBuffer[] nioBuffers = buf.nioBuffers(readerIndex, buf.writerIndex() - readerIndex);
             return writeBytesMultiple(in, nioBuffers, nioBuffers.length, readableBytes,
                     config().getMaxBytesPerGatheringWrite());
         }
