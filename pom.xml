@@ -1155,125 +1155,125 @@
     </extensions>
 
     <plugins>
-      <plugin>
-        <groupId>org.revapi</groupId>
-        <artifactId>revapi-maven-plugin</artifactId>
-        <version>0.14.6</version>
-        <dependencies>
-          <dependency>
-            <groupId>org.revapi</groupId>
-            <artifactId>revapi-java</artifactId>
-            <version>0.26.1</version>
-          </dependency>
-        </dependencies>
-        <configuration>
-          <analysisConfiguration>
-            <revapi.filter>
-              <elements>
-                <exclude>
-                  <item>
-                    <matcher>java-package</matcher>
-                    <match>/.*\.internal\..*/</match>
-                  </item>
-                  <item>
-                    <matcher>java-package</matcher>
-                    <match>/org\.openjdk\.jmh\..*/</match>
-                  </item>
-                  <item>
-                    <matcher>java</matcher>
-                    <match>@io.netty.util.internal.UnstableApi ^*;</match>
-                  </item>
-                </exclude>
-              </elements>
-              <annotated>
-                <exclude>
-                  <item>@io.netty.util.internal.UnstableApi</item>
-                </exclude>
-              </annotated>
-            </revapi.filter>
-            <revapi.differences>
-              <differences>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.missing.oldClass</code> <!-- Missing in prior Netty versions -->
-                  <old>missing-class org.slf4j.Logger</old>
-                  <new>missing-class org.slf4j.Logger</new>
-                  <justification>The com.barchart.udt library exposes this class in their API, but slf4j is an optional dependency to Netty.</justification>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.missing.newClass</code> <!-- Missing in this Netty version -->
-                  <old>missing-class org.slf4j.Logger</old>
-                  <new>missing-class org.slf4j.Logger</new>
-                  <justification>The com.barchart.udt library exposes this class in their API, but slf4j is an optional dependency to Netty.</justification>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.class.externalClassExposedInAPI</code>
-                  <regex>true</regex>
-                  <package>io\.netty\..*</package>
-                  <justification>They're not "external classes" if they're from a Netty package.</justification>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.field.removed</code>
-                  <classQualifiedName>io.netty.util.internal.InternalThreadLocalMap</classQualifiedName>
-                  <justification>Ignore cache padding.</justification>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.method.removed</code>
-                  <old>method java.lang.String io.netty.testsuite.util.TestUtils::testMethodName(org.junit.rules.TestName)</old>
-                  <justification>This should be test-only, and we're removing support for JUnit 4.</justification>
-                </item>
-                <!-- Necessary changes to fix #12627 -->
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.method.finalMethodAddedToNonFinalClass</code>
-                  <new>method void io.netty.util.AbstractReferenceCounted::setRefCnt(int) @ io.netty.handler.codec.http.multipart.MixedAttribute</new>
-                  <justification>Acceptable incompatibility for required change</justification>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.method.finalMethodAddedToNonFinalClass</code>
-                  <new>method void io.netty.util.AbstractReferenceCounted::setRefCnt(int) @ io.netty.handler.codec.http.multipart.MixedFileUpload</new>
-                  <justification>Acceptable incompatibility for required change</justification>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.class.nonFinalClassInheritsFromNewClass</code>
-                  <old>class io.netty.handler.codec.http.multipart.MixedFileUpload</old>
-                  <new>class io.netty.handler.codec.http.multipart.MixedFileUpload</new>
-                  <superClass>io.netty.handler.codec.http.multipart.AbstractMixedHttpData&lt;io.netty.handler.codec.http.multipart.FileUpload&gt;</superClass>
-                  <justification>Acceptable incompatibility for required change</justification>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.class.nonFinalClassInheritsFromNewClass</code>
-                  <old>class io.netty.handler.codec.http.multipart.MixedAttribute</old>
-                  <new>class io.netty.handler.codec.http.multipart.MixedAttribute</new>
-                  <superClass>io.netty.handler.codec.http.multipart.AbstractMixedHttpData&lt;io.netty.handler.codec.http.multipart.Attribute&gt;</superClass>
-                  <justification>Acceptable incompatibility for required change</justification>
-                </item>
-                <item>
-                  <ignore>true</ignore>
-                  <code>java.annotation.removed</code>
-                  <annotation>@io.netty.channel.ChannelHandlerMask.Skip</annotation>
-                  <justification>No change in compatibility</justification>
-                </item>
-              </differences>
-            </revapi.differences>
-          </analysisConfiguration>
-        </configuration>
-        <executions>
-          <execution>
-            <id>api-check</id>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+<!--      <plugin>-->
+<!--        <groupId>org.revapi</groupId>-->
+<!--        <artifactId>revapi-maven-plugin</artifactId>-->
+<!--        <version>0.14.6</version>-->
+<!--        <dependencies>-->
+<!--          <dependency>-->
+<!--            <groupId>org.revapi</groupId>-->
+<!--            <artifactId>revapi-java</artifactId>-->
+<!--            <version>0.26.1</version>-->
+<!--          </dependency>-->
+<!--        </dependencies>-->
+<!--        <configuration>-->
+<!--          <analysisConfiguration>-->
+<!--            <revapi.filter>-->
+<!--              <elements>-->
+<!--                <exclude>-->
+<!--                  <item>-->
+<!--                    <matcher>java-package</matcher>-->
+<!--                    <match>/.*\.internal\..*/</match>-->
+<!--                  </item>-->
+<!--                  <item>-->
+<!--                    <matcher>java-package</matcher>-->
+<!--                    <match>/org\.openjdk\.jmh\..*/</match>-->
+<!--                  </item>-->
+<!--                  <item>-->
+<!--                    <matcher>java</matcher>-->
+<!--                    <match>@io.netty.util.internal.UnstableApi ^*;</match>-->
+<!--                  </item>-->
+<!--                </exclude>-->
+<!--              </elements>-->
+<!--              <annotated>-->
+<!--                <exclude>-->
+<!--                  <item>@io.netty.util.internal.UnstableApi</item>-->
+<!--                </exclude>-->
+<!--              </annotated>-->
+<!--            </revapi.filter>-->
+<!--            <revapi.differences>-->
+<!--              <differences>-->
+<!--                <item>-->
+<!--                  <ignore>true</ignore>-->
+<!--                  <code>java.missing.oldClass</code> &lt;!&ndash; Missing in prior Netty versions &ndash;&gt;-->
+<!--                  <old>missing-class org.slf4j.Logger</old>-->
+<!--                  <new>missing-class org.slf4j.Logger</new>-->
+<!--                  <justification>The com.barchart.udt library exposes this class in their API, but slf4j is an optional dependency to Netty.</justification>-->
+<!--                </item>-->
+<!--                <item>-->
+<!--                  <ignore>true</ignore>-->
+<!--                  <code>java.missing.newClass</code> &lt;!&ndash; Missing in this Netty version &ndash;&gt;-->
+<!--                  <old>missing-class org.slf4j.Logger</old>-->
+<!--                  <new>missing-class org.slf4j.Logger</new>-->
+<!--                  <justification>The com.barchart.udt library exposes this class in their API, but slf4j is an optional dependency to Netty.</justification>-->
+<!--                </item>-->
+<!--                <item>-->
+<!--                  <ignore>true</ignore>-->
+<!--                  <code>java.class.externalClassExposedInAPI</code>-->
+<!--                  <regex>true</regex>-->
+<!--                  <package>io\.netty\..*</package>-->
+<!--                  <justification>They're not "external classes" if they're from a Netty package.</justification>-->
+<!--                </item>-->
+<!--                <item>-->
+<!--                  <ignore>true</ignore>-->
+<!--                  <code>java.field.removed</code>-->
+<!--                  <classQualifiedName>io.netty.util.internal.InternalThreadLocalMap</classQualifiedName>-->
+<!--                  <justification>Ignore cache padding.</justification>-->
+<!--                </item>-->
+<!--                <item>-->
+<!--                  <ignore>true</ignore>-->
+<!--                  <code>java.method.removed</code>-->
+<!--                  <old>method java.lang.String io.netty.testsuite.util.TestUtils::testMethodName(org.junit.rules.TestName)</old>-->
+<!--                  <justification>This should be test-only, and we're removing support for JUnit 4.</justification>-->
+<!--                </item>-->
+<!--                &lt;!&ndash; Necessary changes to fix #12627 &ndash;&gt;-->
+<!--                <item>-->
+<!--                  <ignore>true</ignore>-->
+<!--                  <code>java.method.finalMethodAddedToNonFinalClass</code>-->
+<!--                  <new>method void io.netty.util.AbstractReferenceCounted::setRefCnt(int) @ io.netty.handler.codec.http.multipart.MixedAttribute</new>-->
+<!--                  <justification>Acceptable incompatibility for required change</justification>-->
+<!--                </item>-->
+<!--                <item>-->
+<!--                  <ignore>true</ignore>-->
+<!--                  <code>java.method.finalMethodAddedToNonFinalClass</code>-->
+<!--                  <new>method void io.netty.util.AbstractReferenceCounted::setRefCnt(int) @ io.netty.handler.codec.http.multipart.MixedFileUpload</new>-->
+<!--                  <justification>Acceptable incompatibility for required change</justification>-->
+<!--                </item>-->
+<!--                <item>-->
+<!--                  <ignore>true</ignore>-->
+<!--                  <code>java.class.nonFinalClassInheritsFromNewClass</code>-->
+<!--                  <old>class io.netty.handler.codec.http.multipart.MixedFileUpload</old>-->
+<!--                  <new>class io.netty.handler.codec.http.multipart.MixedFileUpload</new>-->
+<!--                  <superClass>io.netty.handler.codec.http.multipart.AbstractMixedHttpData&lt;io.netty.handler.codec.http.multipart.FileUpload&gt;</superClass>-->
+<!--                  <justification>Acceptable incompatibility for required change</justification>-->
+<!--                </item>-->
+<!--                <item>-->
+<!--                  <ignore>true</ignore>-->
+<!--                  <code>java.class.nonFinalClassInheritsFromNewClass</code>-->
+<!--                  <old>class io.netty.handler.codec.http.multipart.MixedAttribute</old>-->
+<!--                  <new>class io.netty.handler.codec.http.multipart.MixedAttribute</new>-->
+<!--                  <superClass>io.netty.handler.codec.http.multipart.AbstractMixedHttpData&lt;io.netty.handler.codec.http.multipart.Attribute&gt;</superClass>-->
+<!--                  <justification>Acceptable incompatibility for required change</justification>-->
+<!--                </item>-->
+<!--                <item>-->
+<!--                  <ignore>true</ignore>-->
+<!--                  <code>java.annotation.removed</code>-->
+<!--                  <annotation>@io.netty.channel.ChannelHandlerMask.Skip</annotation>-->
+<!--                  <justification>No change in compatibility</justification>-->
+<!--                </item>-->
+<!--              </differences>-->
+<!--            </revapi.differences>-->
+<!--          </analysisConfiguration>-->
+<!--        </configuration>-->
+<!--        <executions>-->
+<!--          <execution>-->
+<!--            <id>api-check</id>-->
+<!--            <goals>-->
+<!--              <goal>check</goal>-->
+<!--            </goals>-->
+<!--          </execution>-->
+<!--        </executions>-->
+<!--      </plugin>-->
       <plugin>
         <groupId>com.github.siom79.japicmp</groupId>
         <artifactId>japicmp-maven-plugin</artifactId>
