@@ -250,7 +250,7 @@ public abstract class AbstractEpollStreamChannel extends AbstractEpollChannel im
      * </ul>
      */
     private int writeBytes(ChannelOutboundBuffer in, ByteBuf buf) throws Exception {
-        int readerIndex =  in.readerIndex();
+        int readerIndex = in.readerIndex();
         int readableBytes = buf.writerIndex() - readerIndex;
         if (readableBytes == 0) {
             in.remove();
@@ -504,7 +504,7 @@ public abstract class AbstractEpollStreamChannel extends AbstractEpollChannel im
         final long maxBytesPerGatheringWrite = config().getMaxBytesPerGatheringWrite();
         IovArray array = ((EpollEventLoop) eventLoop()).cleanIovArray();
         array.maxBytes(maxBytesPerGatheringWrite);
-        in.forEachFlushedMessage(array);
+        in.forEachFlushedEntry(array);
 
         if (array.count() >= 1) {
             // TODO: Handle the case where cnt == 1 specially.

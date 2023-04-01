@@ -812,6 +812,24 @@ public final class ChannelOutboundBuffer {
         } while (isFlushedEntry(entry));
     }
 
+    public void forEachFlushedEntry(MessageProcessor processor) throws Exception {
+        ObjectUtil.checkNotNull(processor, "processor");
+
+        Entry entry = flushedEntry;
+        if (entry == null) {
+            return;
+        }
+
+        do {
+            if (!entry.cancelled) {
+                if (!processor.processMessage(entry)) {
+                    return;
+                }
+            }
+            entry = entry.next;
+        } while (isFlushedEntry(entry));
+    }
+
     private boolean isFlushedEntry(Entry e) {
         return e != null && e != unflushedEntry;
     }
@@ -824,7 +842,7 @@ public final class ChannelOutboundBuffer {
         boolean processMessage(Object msg) throws Exception;
     }
 
-    static final class Entry {
+    public static final class Entry {
         private static final ObjectPool<Entry> RECYCLER = ObjectPool.newPool(new ObjectCreator<Entry>() {
             @Override
             public Entry newObject(Handle<Entry> handle) {
@@ -834,7 +852,7 @@ public final class ChannelOutboundBuffer {
 
         private final EnhancedHandle<Entry> handle;
         Entry next;
-        Object msg;
+        public Object msg;
         ByteBuffer[] bufs;
         ByteBuffer buf;
         ChannelPromise promise;
@@ -842,7 +860,7 @@ public final class ChannelOutboundBuffer {
         long total;
         int pendingSize;
         int count = -1;
-        int readerIndex = -1;
+        public int readerIndex = -1;
         boolean cancelled;
 
         private Entry(Handle<Entry> handle) {

@@ -17,6 +17,8 @@ package io.netty.channel.unix;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelOutboundBuffer;
+import io.netty.channel.ChannelOutboundBuffer.Entry;
 import io.netty.channel.ChannelOutboundBuffer.MessageProcessor;
 import io.netty.util.internal.PlatformDependent;
 
@@ -224,9 +226,12 @@ public final class IovArray implements MessageProcessor {
 
     @Override
     public boolean processMessage(Object msg) throws Exception {
-        if (msg instanceof ByteBuf) {
-            ByteBuf buffer = (ByteBuf) msg;
-            return add(buffer, buffer.readerIndex(), buffer.readableBytes());
+        if (msg instanceof ChannelOutboundBuffer.Entry) {
+            ChannelOutboundBuffer.Entry entry = (ChannelOutboundBuffer.Entry) msg;
+            if(entry.msg instanceof ByteBuf) {
+                ByteBuf buffer = (ByteBuf) entry.msg;
+                return add(buffer, entry.readerIndex, buffer.writerIndex() - entry.readerIndex);
+            }
         }
         return false;
     }
